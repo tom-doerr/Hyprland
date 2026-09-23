@@ -45,7 +45,9 @@ def environment(runtime):
 
 def alive(state):
     try:
-        return Path(f"/proc/{state['pid']}/exe").resolve(strict=True) == BINARY.resolve()
+        # A rebuild replaces the executable while the previous test is running.
+        executable = os.readlink(f"/proc/{state['pid']}/exe").removesuffix(" (deleted)")
+        return executable == str(BINARY.resolve())
     except (FileNotFoundError, PermissionError):
         return False
 
@@ -167,6 +169,12 @@ def main():
     state = json.loads(STATE.read_text())
     if action == "stop":
         control(state, ["dispatch", "hl.dsp.exit()"])
+        for _ in range(100):
+            if not alive(state):
+                break
+            time.sleep(0.1)
+        else:
+            raise SystemExit("The nested desktop has not finished exiting yet; see its log.")
     elif action == "status":
         control(state, ["version"])
         control(state, ["monitors"])
