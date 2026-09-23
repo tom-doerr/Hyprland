@@ -13,6 +13,13 @@ include(CTest)
 include(CheckIncludeFile)
 include(GNUInstallDirs)
 
+# Generate the embedded example for compilers without C++26 #embed (GCC 14).
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS example/hyprland.lua)
+file(READ "${CMAKE_SOURCE_DIR}/example/hyprland.lua" HYPRLAND_EXAMPLE_CONFIG_HEX HEX)
+string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," HYPRLAND_EXAMPLE_CONFIG_BYTES "${HYPRLAND_EXAMPLE_CONFIG_HEX}")
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/generated")
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/generated/defaultConfig.inc" "${HYPRLAND_EXAMPLE_CONFIG_BYTES}\n")
+
 set(HYPRLAND_VERSION ${VER})
 set(PREFIX ${CMAKE_INSTALL_PREFIX})
 set(INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR})
@@ -303,6 +310,7 @@ if(USE_TRACY)
 endif()
 
 add_library(hyprland_lib STATIC ${SRCFILES})
+target_include_directories(hyprland_lib PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/generated")
 add_executable(Hyprland src/main.cpp ${TRACY_CPP_FILES})
 target_link_libraries(Hyprland hyprland_lib)
 
@@ -692,6 +700,8 @@ install(
   PATTERN "*.h"
   PATTERN "*.hpp"
   PATTERN "*.inc")
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/generated/defaultConfig.inc"
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyprland/src/config/lua)
 
 if(BUILD_TESTING OR WITH_TESTS)
   message(STATUS "Building tests")

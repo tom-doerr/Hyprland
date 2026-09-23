@@ -838,7 +838,7 @@ bool truthy(const std::string& str) {
     });
 
     return [&](auto&&... prefixes) -> bool {
-        return (... || std::ranges::starts_with(str_view, prefixes));
+        return (... || (std::ranges::mismatch(str_view, prefixes).in2 == prefixes.end()));
     }("true"sv, "yes"sv, "on"sv);
     // clang-format on
 }

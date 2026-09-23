@@ -93,3 +93,15 @@ TEST(Helpers, truthyFalse) {
     EXPECT_FALSE(truthy(""));
     EXPECT_FALSE(truthy("random"));
 }
+
+TEST(Helpers, truthyPrefixes) {
+    EXPECT_TRUE(truthy("TRUEsuffix"));
+    EXPECT_TRUE(truthy("YESsuffix"));
+    EXPECT_TRUE(truthy("ONsuffix"));
+    EXPECT_FALSE(truthy("t"));
+    EXPECT_FALSE(truthy("tr"));
+    EXPECT_FALSE(truthy("tru"));
+    EXPECT_FALSE(truthy("ye"));
+    EXPECT_FALSE(truthy("o"));
+    EXPECT_FALSE(truthy("11"));
+}

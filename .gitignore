@@ -13,6 +13,8 @@ hyprland.pc
 _deps
 
 build/
+.nested/
+scripts/nested/__pycache__/
 result*
 /.pre-commit-config.yaml
 /.vscode/

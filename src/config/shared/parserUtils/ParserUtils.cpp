@@ -14,7 +14,7 @@ using namespace Config::ParserUtils;
 using namespace Hyprutils::String;
 
 static std::expected<uint64_t, std::string> parseHex(std::string_view value) {
-    auto res = value.starts_with("0x") ? strToNumber<uint64_t>(value) : strToNumber<uint64_t>(std::string{"0x"} + value);
+    auto res = value.starts_with("0x") ? strToNumber<uint64_t>(value) : strToNumber<uint64_t>(std::string{"0x"}.append(value));
     if (!res)
         return std::unexpected(std::format("invalid hex \"{}\"", value));
     return *res;
